@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Post;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -30,8 +31,9 @@ class PostController extends Controller
     public function create()
     {
         $categories = Category::All();
+        $tags = Tag::All();
 
-        return view('admin.post.create', compact('categories'));
+        return view('admin.post.create', compact('categories','tags'));
     }
 
     /**
@@ -56,6 +58,11 @@ class PostController extends Controller
         $new_post = new Post();
         $new_post->fill($data);
         $new_post->save();
+
+        //controllo se l'utente ha cliccato delle checkbox
+        if( array_key_exists('tags',$data)){
+            $new_post->tags()->sync($data['tags']);
+        }
 
         return redirect()->route('admin.posts.show', $new_post->id);
     }
