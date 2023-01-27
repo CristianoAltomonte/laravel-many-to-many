@@ -48,7 +48,6 @@ class PostController extends Controller
 
 
         //Validazione
-
         $request -> validate ([
 
             'title' => 'required',
@@ -89,7 +88,10 @@ class PostController extends Controller
     {
         $post = Post::findOrFail($id);
         $categories = Category::All();
-        return view('admin.post.edit', compact('post', 'categories'));
+        $tags = Tag::All();
+
+
+        return view('admin.post.edit', compact('post', 'categories', 'tags'));
     }
 
     /**
@@ -103,7 +105,18 @@ class PostController extends Controller
     {
         $data = $request->all();
         $post = Post::findOrFail($id);
+
         $post->update($data);
+
+        // Controlla se l' utente ha cliccato o erano gia selezionate delle checkbox
+        if( array_key_exists('tags',$data)){
+            $post->tags()->sync($data['tags']);
+        }else{
+
+            //non ci sono checkbox selezionate
+            $post->tags()->sync([]);
+        }
+
         return redirect()->route('admin.posts.show', $post->id);
     }
 
