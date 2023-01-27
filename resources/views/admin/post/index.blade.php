@@ -15,8 +15,12 @@
                     <p class="card-text">{{ $post->body }}</p>
 
                     @if ($post->category)
-                       {{ $post->category['name'] }}
+                        {{ $post->category['name'] }}
                     @endif
+
+                    @foreach ($post->tags as $singoloTag)
+                        {{ $singoloTag->name }}
+                    @endforeach
 
 
                     <div class="d-flex justify-content-between">
@@ -43,6 +47,7 @@
                 </div>
             </div>
         @endforeach
+
 
 
     </div>
