@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Category;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
@@ -20,7 +21,6 @@ class PostController extends Controller
         $posts = Post::with('category', 'tags')->paginate(10);
 
         return view('admin.post.index', compact('posts'));
-
     }
 
     /**
@@ -33,7 +33,7 @@ class PostController extends Controller
         $categories = Category::All();
         $tags = Tag::All();
 
-        return view('admin.post.create', compact('categories','tags'));
+        return view('admin.post.create', compact('categories', 'tags'));
     }
 
     /**
@@ -48,18 +48,26 @@ class PostController extends Controller
 
 
         //Validazione
-        $request -> validate ([
+        $request->validate([
 
             'title' => 'required',
             'body' => 'required',
         ]);
 
         $new_post = new Post();
+
+        if (array_key_exists('image', $data)){
+
+            $cover_url = Storage::put('post_covers', $data['image']);
+            $data['cover'] = $cover_url;
+
+        }
+
         $new_post->fill($data);
         $new_post->save();
 
         //controllo se l'utente ha cliccato delle checkbox
-        if( array_key_exists('tags',$data)){
+        if (array_key_exists('tags', $data)) {
             $new_post->tags()->sync($data['tags']);
         }
 
@@ -109,9 +117,9 @@ class PostController extends Controller
         $post->update($data);
 
         // Controlla se l' utente ha cliccato o erano gia selezionate delle checkbox
-        if( array_key_exists('tags',$data)){
+        if (array_key_exists('tags', $data)) {
             $post->tags()->sync($data['tags']);
-        }else{
+        } else {
 
             //non ci sono checkbox selezionate
             $post->tags()->sync([]);
